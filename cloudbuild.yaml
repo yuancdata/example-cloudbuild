@@ -1,0 +1,18 @@
+# cloudbuild.yaml
+
+# How to use:
+# - You will need to have `gcloud` SDK installed.
+# - Login to your GCP account via `gcloud auth login`.
+# - When you're ready to deploy your code to cloud run, run command `gcloud builds submit`.
+
+steps:
+
+  - name: "gcr.io/kaniko-project/executor:latest"
+    args: ["--cache=true", "--cache-ttl=48h", "--destination=gcr.io/$PROJECT_ID/drivenbydata:latest"]
+
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    env:
+    - 'PORT=8080'
+    - 'HOST=0.0.0.0'
+    args: ['beta', 'run', 'deploy', 'your-app-name', '--image', 'gcr.io/$PROJECT_ID/drivenbydata:latest', '--region', 'us-central1', '--allow-unauthenticated', '--platform', 'managed', '--max-instances', '4', '--concurrency', '1']
